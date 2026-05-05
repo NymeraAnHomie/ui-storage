@@ -374,15 +374,12 @@
             end
             
             local List = {}
-            
-            for _,file in listfiles(Library.Directory .. "/configs") do
-                local Name = file:gsub(Library.Directory .. "/configs\\", ""):gsub(".cfg", ""):gsub(Library.Directory .. "\\configs\\", "")
-                List[#List + 1] = Name
+            for _, file in listfiles(Library.Directory .. "/configs") do
+                local name = file:match("([^\\/]+)$")
+                name = name:gsub("%.cfg$", "")
+                
+                List[#List + 1] = name
             end
-
-            for _,v in List do 
-                print(_,v)
-            end 
 
             ConfigHolder.RefreshOptions(List)
         end
@@ -2001,7 +1998,6 @@
 
             function Cfg.ToggleKeybindList(bool)
                 Items.Keybind_List.Visible = bool
-                print(bool)
             end
             
             return setmetatable(Cfg, Library)
@@ -3108,7 +3104,6 @@
                 end)
     
                 if not Cfg.TabInfo then
-                    print("new tab")
                     SubItems.Fill.Size = dim2(1, -2, 0, 1);
                     SubItems.TextPadding.PaddingRight = dim(0, 8);
                     Data.OpenTab()
@@ -4997,7 +4992,6 @@
             Library:Tween(Items.Outline, {AnchorPoint = vec2(0, 0)})
             Library:Tween(Items.AccentLine, {Size = dim2(0, -2, 0, 1)}, TweenInfo.new(Cfg.Lifetime, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, 0))
 
-            print(Items.AccentLine.BackgroundTransparency)
             task.spawn(function()
                 task.wait(Cfg.Lifetime)
                 local fadeDuration = 1
