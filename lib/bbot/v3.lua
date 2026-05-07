@@ -384,6 +384,19 @@
             Library.ConfigHolder.RefreshOptions(List)
         end
 
+        Library:Connection(InputService.InputBegan, function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+                if Library.OpenElement and Library.OpenElement.Items and Library.OpenElement.Items.Colorpicker then
+                    local picker = Library.OpenElement.Items.Colorpicker
+                    if picker.Visible and not Library:Hovering(picker) then
+                        picker.Visible = false
+                        Library.OpenElement.Open = false
+                        Library.OpenElement = nil
+                    end
+                end
+            end
+        end)
+
         function Library:Keypicker(properties) 
             local Cfg = {
                 Name = properties.Name or "Color", 
@@ -1985,7 +1998,11 @@
 
             function Cfg.ToggleWatermark(bool) 
                 Items.Watermark.Visible = bool
-            end 
+            end
+
+            function Cfg.ChangeWatermarkIcon(id)
+                Items.Watermark:FindFirstChildOfClass("ImageLabel").Image = "rbxassetid://" .. tostring(id)
+            end
 
             function Cfg.ChangeWatermarkTitle(text)
                 Items.WatermarkTitle.Text = text
