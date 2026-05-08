@@ -332,21 +332,25 @@
             return start * (1 - t) + finish * t
         end
 
-        function Library:ConvertEnum(enum)
-            local EnumParts = {}
-            
-            for part in string.gmatch(enum, "[%w_]+") do
-                insert(EnumParts, part)
+       function Library:ConvertEnum(enum)
+            if typeof(enum) ~= "string" or enum == "NONE" or enum == "" then 
+                return nil 
             end
-        
-            local EnumTable = Enum
 
-            for i = 2, #EnumParts do
-                local EnumItem = EnumTable[EnumParts[i]]
-        
-                EnumTable = EnumItem
+            local EnumParts = {}
+            for part in string.gmatch(enum, "[%w_]+") do
+                table.insert(EnumParts, part)
             end
-            
+
+            local EnumTable = Enum
+            for i = 2, #EnumParts do
+                if EnumTable[EnumParts[i]] then
+                    EnumTable = EnumTable[EnumParts[i]]
+                else
+                    return nil
+                end
+            end
+
             return EnumTable
         end
 
@@ -1240,11 +1244,11 @@
             local Config = {}
             
             for Idx, Value in Flags do
-                if type(Value) == "table" and Value.key then
+                if type(Value) == "table" and Value.Key then
                     Config[Idx] = {
                         Active = Value.Active,
                         Mode = Value.Mode,
-                        Key = tostring(Value.Key)
+                        Key = (Value.Key ~= nil and tostring(Value.Key)) or "NONE"
                     }
                 elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                     Config[Idx] = {
@@ -1272,7 +1276,7 @@
                 if Function then 
                     if type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                         Function(hex(Value["Color"]), Value["Transparency"])
-                    elseif type(Value) == "table" and Value["Active"] then 
+                    elseif type(Value) == "table" and Value["Key"] then 
                         Function(Value)
                     else
                         Function(Value)
