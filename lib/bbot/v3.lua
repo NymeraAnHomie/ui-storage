@@ -4551,13 +4551,16 @@
                     Cfg.Mode = input
                     Cfg.SetMode(Cfg.Mode) 
                 elseif type(input) == "table" then
-                    input.Key = type(input.Key) == "string" and input.Key ~= "NONE" and Library:ConvertEnum(input.key) or input.Key
-                    input.Key = input.Key == Enum.KeyCode.Escape and "NONE" or input.Key
+                    local savedKey = input.Key
+                    
+                    if type(savedKey) == "string" and savedKey ~= "NONE" then
+                        input.Key = Library:ConvertEnum(savedKey)
+                    end
 
                     Cfg.Key = input.Key or "NONE"
                     Cfg.Mode = input.Mode or "Toggle"
 
-                    if input.Active then
+                    if input.Active ~= nil then
                         Cfg.Active = input.Active
                     end
 
