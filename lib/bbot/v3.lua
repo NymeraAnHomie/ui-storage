@@ -1266,10 +1266,13 @@
                 if Function then
                     if type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                         Function(hex(Value["Color"]), Value["Transparency"])
+                    
                     elseif type(Value) == "table" and Value["key"] and Value["mode"] then
+                        local KeyName = Value.key:gsub("Enum.KeyCode.", "")
+                        Value.key = Enum.KeyCode[KeyName]
+
                         Function(Value) 
-                    elseif type(Value) == "table" and Value["Active"] then
-                        Function(Value)
+                        
                     else
                         Function(Value)
                     end
