@@ -1239,23 +1239,17 @@
         function Library:GetConfig()
     local Config = {}
     for Idx, Value in Flags do
-        if type(Value) == "table" then
-            -- Case 1: Keybinds (checking for the .key property)
-            if Value.key ~= nil then
-                Config[Idx] = {
-                    active = Value.active,
-                    mode = Value.mode,
-                    key = tostring(Value.key.Name or Value.key)
-                }
-            -- Case 2: Colorpickers
-            elseif Value.Transparency and Value.Color then
-                Config[Idx] = {
-                    Transparency = Value.Transparency,
-                    Color = Value.Color:ToHex()
-                }
-            else
-                Config[Idx] = Value
-            end
+        if type(Value) == "table" and Value.key ~= nil then 
+            Config[Idx] = {
+                active = Value.active, 
+                mode = Value.mode, 
+                key = (type(Value.key) == "EnumItem" and Value.key.Name) or tostring(Value.key)
+            }
+        elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
+            Config[Idx] = {
+                Transparency = Value["Transparency"], 
+                Color = Value["Color"]:ToHex()
+            }
         else
             Config[Idx] = Value
         end
@@ -1271,14 +1265,18 @@ function Library:LoadConfig(JSON)
         
         if Function then
             if type(Value) == "table" and Value.key then
-                -- Convert the string back to a KeyCode
-                local KeyName = tostring(Value.key):gsub("Enum.KeyCode.", "")
-                local Success, KeyCode = pcall(function() return Enum.KeyCode[KeyName] end)
-                
-                if Success then
-                    Value.key = KeyCode
-                    Function(Value)
+                local KeyCode
+                if Value.key == "NONE" or Value.key == "None" or Value.key == "nil" then
+                    KeyCode = nil
+                else
+                    pcall(function()
+                        local CleanName = tostring(Value.key):gsub("Enum.KeyCode.", "")
+                        KeyCode = Enum.KeyCode[CleanName]
+                    end)
                 end
+                
+                Value.key = KeyCode
+                Function(Value)
             elseif type(Value) == "table" and Value.Color then
                 Function(hex(Value.Color), Value.Transparency)
             else
