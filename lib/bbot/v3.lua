@@ -1237,50 +1237,56 @@
         end 
 
         function Library:GetConfig()
-            local Config = {}
-            for Idx, Value in Flags do
-                if type(Value) == "table" and Value.key ~= nil then 
-                    Config[Idx] = {
-                        active = Value.active, 
-                        mode = Value.mode, 
-                        key = Value.key.Name 
-                    }
-                elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
-                    Config[Idx] = {
-                        Transparency = Value["Transparency"], 
-                        Color = Value["Color"]:ToHex()
-                    }
-                else
-                    Config[Idx] = Value
-                end
+    local Config = {}
+    for Idx, Value in Flags do
+        if type(Value) == "table" then
+            -- Case 1: Keybinds (checking for the .key property)
+            if Value.key ~= nil then
+                Config[Idx] = {
+                    active = Value.active,
+                    mode = Value.mode,
+                    key = tostring(Value.key.Name or Value.key)
+                }
+            -- Case 2: Colorpickers
+            elseif Value.Transparency and Value.Color then
+                Config[Idx] = {
+                    Transparency = Value.Transparency,
+                    Color = Value.Color:ToHex()
+                }
+            else
+                Config[Idx] = Value
             end
-            return HttpService:JSONEncode(Config)
+        else
+            Config[Idx] = Value
         end
+    end
+    return HttpService:JSONEncode(Config)
+end
 
-        function Library:LoadConfig(JSON)
-            local Config = HttpService:JSONDecode(JSON)
-            for Idx, Value in Config do
-                if Idx == "config_name_list" then continue end
-                local Function = ConfigFlags[Idx]
+function Library:LoadConfig(JSON)
+    local Config = HttpService:JSONDecode(JSON)
+    for Idx, Value in Config do
+        if Idx == "config_name_list" then continue end
+        local Function = ConfigFlags[Idx]
+        
+        if Function then
+            if type(Value) == "table" and Value.key then
+                -- Convert the string back to a KeyCode
+                local KeyName = tostring(Value.key):gsub("Enum.KeyCode.", "")
+                local Success, KeyCode = pcall(function() return Enum.KeyCode[KeyName] end)
                 
-                if Function then
-                    if type(Value) == "table" and Value.key then
-                        local Success, KeyCode = pcall(function() 
-                            return Enum.KeyCode[Value.key] 
-                        end)
-                        
-                        if Success then
-                            Value.key = KeyCode
-                            Function(Value)
-                        end
-                    elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
-                        Function(hex(Value["Color"]), Value["Transparency"])
-                    else
-                        Function(Value)
-                    end
+                if Success then
+                    Value.key = KeyCode
+                    Function(Value)
                 end
+            elseif type(Value) == "table" and Value.Color then
+                Function(hex(Value.Color), Value.Transparency)
+            else
+                Function(Value)
             end
         end
+    end
+end
         
         function Library:Round(num, float) 
             local Multiplier = 1 / (float or 1)
