@@ -1239,11 +1239,11 @@
         function Library:GetConfig()
             local Config = {}
             for Idx, Value in Flags do
-                if type(Value) == "table" and Value.key then 
+                if type(Value) == "table" and Value.key ~= nil then 
                     Config[Idx] = {
                         active = Value.active, 
                         mode = Value.mode, 
-                        key = tostring(Value.key)
+                        key = Value.key ~= nil and tostring(Value.key) or "None"
                     }
                 elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                     Config[Idx] = {
@@ -1267,12 +1267,17 @@
                     if type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                         Function(hex(Value["Color"]), Value["Transparency"])
                     
-                    elseif type(Value) == "table" and Value["key"] and Value["mode"] then
-                        local KeyName = Value.key:gsub("Enum.KeyCode.", "")
-                        Value.key = Enum.KeyCode[KeyName]
-
-                        Function(Value) 
+                    elseif type(Value) == "table" and Value["key"] then
+                        if Value.key == "None" or Value.key == "nil" then
+                            Value.key = nil
+                        else
+                            local KeyName = Value.key:gsub("Enum.KeyCode.", "")
+                            pcall(function()
+                                Value.key = Enum.KeyCode[KeyName]
+                            end)
+                        end
                         
+                        Function(Value) 
                     else
                         Function(Value)
                     end
