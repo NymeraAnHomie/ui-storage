@@ -151,8 +151,8 @@
             return getcustomasset(Name .. ".font");
         end
         
-        local Verdana = RegisterFont("Verawdawdawdwaddana", 400, "Normal", {
-            Id = "Verdanawdawdwada.ttf",
+        local Verdana = RegisterFont("Tahoma8PX", 400, "Normal", {
+            Id = "Tahoma8PX.ttf",
             Font = game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/fs-tahoma-8px.ttf"),
         })
 
@@ -1241,9 +1241,16 @@
             
             for Idx, Value in Flags do
                 if type(Value) == "table" and Value.key then
-                    Config[Idx] = {active = Value.active, mode = Value.mode, key = tostring(Value.key)}
+                    Config[Idx] = {
+                        Active = Value.Active,
+                        Mode = Value.Mode,
+                        Key = tostring(Value.Key)
+                    }
                 elseif type(Value) == "table" and Value["Transparency"] and Value["Color"] then
-                    Config[Idx] = {Transparency = Value["Transparency"], Color = Value["Color"]:ToHex()}
+                    Config[Idx] = {
+                        Transparency = Value["Transparency"],
+                        Color = Value["Color"]:ToHex()
+                    }
                 else
                     Config[Idx] = Value
                 end
@@ -1265,7 +1272,7 @@
                 if Function then 
                     if type(Value) == "table" and Value["Transparency"] and Value["Color"] then
                         Function(hex(Value["Color"]), Value["Transparency"])
-                    elseif type(Value) == "table" and Value["active"] then 
+                    elseif type(Value) == "table" and Value["Active"] then 
                         Function(Value)
                     else
                         Function(Value)
@@ -4572,9 +4579,9 @@
                 end 
 
                 Flags[Cfg.Flag] = {
-                    mode = Cfg.Mode,
-                    key = Cfg.Key, 
-                    active = Cfg.Active
+                    Mode = Cfg.Mode,
+                    Key = Cfg.Key, 
+                    Active = Cfg.Active
                 }
             end
 
